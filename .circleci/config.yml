@@ -1,0 +1,74 @@
+version: 2.1
+orbs:
+  terraform: circleci/terraform@3.1.0
+  pulumi: pulumi/pulumi@2.1.0
+jobs:
+  tf-plan:
+    executor: 
+      name: terraform/default
+      tag: 1.2.4
+    steps:
+      - checkout
+      - terraform/init:
+          path: ./terraform
+      - terraform/plan:
+          path: ./terraform
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - .
+  tf-apply:
+    executor: 
+      name: terraform/default
+      tag: 1.2.4
+    steps:
+      - attach_workspace:
+          at: .
+      - terraform/apply:
+          path: ./terraform
+  tf-destroy:
+    executor: 
+      name: terraform/default
+      tag: 1.2.4
+    steps:
+      - attach_workspace:
+          at: .
+      - terraform/destroy:
+          path: ./terraform
+  pm-update:
+    docker:
+      - image: circleci/node:16 
+    steps:
+      - checkout
+      - pulumi/login
+      - run: |
+          cd pulumi && npm install
+      - pulumi/update:
+          working_directory: ./pulumi
+          stack: speedlight/huckleberry-labs/dev 
+
+
+workflows:
+  tf-deploy:
+    jobs:
+      - tf-plan
+      - hold-apply:
+          type: approval
+          requires: 
+            - tf-plan
+      - tf-apply:
+          requires: 
+            - hold-apply
+      - hold-destroy:
+          type: approval
+          requires: 
+            - tf-apply
+      - tf-destroy:
+          requires: 
+            - tf-apply
+            - hold-destroy
+  pm-deploy:
+    jobs:
+      - pm-update
+
+

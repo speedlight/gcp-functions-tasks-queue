@@ -1,0 +1,4 @@
+terraform/*.json
+terraform/files/*.*
+terraform/.terraform/*.*
+node_modules/
