@@ -1,6 +1,6 @@
 .env
 terraform/*.json
 terraform/files/*.*
-terraform/.terraform/*.*
+terraform/.terraform
+terraform/terraform.tfstate*
 node_modules/
-terraform/.terraform/
