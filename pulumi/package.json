@@ -1,5 +1,5 @@
 {
-    "name": "huckleberry-labs",
+    "name": "my-awesome-function",
     "devDependencies": {
         "@types/node": "^14"
     },
